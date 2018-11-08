@@ -1,0 +1,138 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+
+def VERSION_NAME = getVersionName()
+def VERSION_CODE = getVersionCode()
+
+android {
+    compileSdkVersion COMPILE_SDK.toInteger()
+    defaultConfig {
+        applicationId "com.alimuzaffar.blank"
+        minSdkVersion MIN_SDK.toInteger()
+        targetSdkVersion TARGET_SDK.toInteger()
+        versionCode VERSION_CODE
+        versionName VERSION_NAME
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
+            }
+        }
+    }
+/*
+    signingConfigs {
+        release {
+            storeFile file("app.jks")
+            storePassword getKeystorePassword()
+            keyAlias "production"
+            keyPassword getProductionAliasPassword()
+            v2SigningEnabled false
+        }
+        dev {
+            storeFile file('app.jks')
+            storePassword getKeystorePassword()
+            keyAlias "development"
+            keyPassword getDevelopmentAliasPassword()
+            v2SigningEnabled false
+        }
+    }
+*/
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+//            signingConfig signingConfigs.release
+            debuggable false
+        }
+
+        debug {
+//            signingConfig signingConfigs.dev
+            debuggable true
+        }
+    }
+
+    flavorDimensions "app"
+    productFlavors {
+        prod {
+            versionName = VERSION_NAME
+            buildConfigField "String", "BASE_URL", "\"http://localhost/\""
+        }
+        // Dev
+        dev {
+            applicationIdSuffix ".dev"
+            versionName = VERSION_NAME + "-DEV"
+            buildConfigField "String", "BASE_URL", "\"http://localhost/\""
+        }
+        mock {
+            applicationIdSuffix ".mock"
+            versionName = VERSION_NAME + "-MOCK"
+            buildConfigField "String", "BASE_URL", "\"http://localhost/\""
+        }
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+    compileOptions {
+        sourceCompatibility = '1.8'
+        targetCompatibility = '1.8'
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    // androidx
+    implementation "androidx.appcompat:appcompat:$androidx_core"
+    implementation "androidx.constraintlayout:constraintlayout:$androidx_constraints"
+    // Lifecycle
+    implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"
+    kapt "androidx.lifecycle:lifecycle-compiler:$lifecycle_version"
+    // Retrofit
+    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
+    // Dagger
+    implementation "com.google.dagger:dagger:$dagger_version"
+    kapt "com.google.dagger:dagger-compiler:$dagger_version"
+    implementation "com.google.dagger:dagger-android-support:$dagger_version"
+    kapt "com.google.dagger:dagger-android-processor:$dagger_version"
+    // Material.IO
+    implementation "com.google.android.material:material:$material_io_version"
+    // Room
+    implementation "androidx.room:room-runtime:$room_version"
+    kapt "androidx.room:room-compiler:$room_version" // use kapt for Kotlin
+    // Glide
+    implementation "com.github.bumptech.glide:glide:$glide_version"
+    kapt "com.github.bumptech.glide:compiler:$glide_version"
+
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test:runner:1.1.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
+}
+
+
+kapt {
+    generateStubs = true
+}
+
+
+// Helper functions
+
+@SuppressWarnings("GrMethodMayBeStatic")
+def getVersionCode() {
+    def buildNumStr = System.getenv("TRAVIS_BUILD_NUMBER") ?: "${APP_VERSION_CODE}"
+    def code = buildNumStr.toInteger()
+    System.out.println("Code = " + code)
+    return code
+}
+
+@SuppressWarnings("GrMethodMayBeStatic")
+def getVersionName() {
+    def buildNumStr = System.getenv("TRAVIS_BUILD_NUMBER") ?: null
+    def name = (buildNumStr == null || buildNumStr.isEmpty()) ? "${APP_VERSION_NAME}" : "${APP_VERSION_NAME} Build " + buildNumStr
+    System.out.println("Name = " + name)
+    return name
+}

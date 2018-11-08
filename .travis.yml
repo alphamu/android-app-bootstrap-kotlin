@@ -1,0 +1,49 @@
+language: android
+jdk: oraclejdk8
+before_install:
+- yes | sdkmanager "platforms;android-28"
+- yes | sdkmanager "sources;android-27"
+- yes | sdkmanager "docs"
+android:
+  components:
+  - tools
+  - platform-tools
+  - build-tools-28.0.3
+  - android-28
+  - extra-google-google_play_services
+  - extra-google-m2repository
+  - extra-android-m2repository
+  - extra-android-support
+  - addon-google_apis-google-23
+licenses:
+- .+
+branches:
+  except:
+  - gh-pages
+notifications:
+  email: false
+sudo: false
+script: travis_retry ./build-test-deploy.sh
+before_cache:
+- rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
+cache:
+  directories:
+  - $HOME/.gradle/caches/
+  - $HOME/.gradle/wrapper/
+deploy:
+  provider: releases
+## Encrypted API Key to upload APK to github
+  api_key:
+    secure: <insert key here>
+  file:
+  - app/build/outputs/apk/prod/release/app-prod-release.apk
+  - app/build/outputs/apk/dev/release/app-dev-release.apk
+  - app/build/outputs/apk/mock/release/app-mock-release.apk
+  skip_cleanup: true
+  on:
+    repo: alphamu/android-app-bootstrap
+    tags: true
+## Secure variables, these are keystore passwords set in environment variables.
+#env:
+#  global:
+#  - secure: <insert encrypted key-value here>
