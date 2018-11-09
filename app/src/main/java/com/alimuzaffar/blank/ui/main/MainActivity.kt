@@ -3,6 +3,7 @@ package com.alimuzaffar.blank.ui.main
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.transaction
 import com.alimuzaffar.blank.R
 import com.alimuzaffar.blank.net.ApiInterface
 import dagger.android.AndroidInjection
@@ -20,9 +21,9 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
         if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction()
-                    .replace(R.id.container, MainFragment.newInstance())
-                    .commitNow()
+            supportFragmentManager.transaction(allowStateLoss = true, now = true) {
+                replace(R.id.container, MainFragment.newInstance())
+            }
         }
     }
 

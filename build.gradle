@@ -32,6 +32,8 @@ allprojects {
         firebase_ml_vision = '17.0.1'
         room_version = '2.1.0-alpha02'
         material_io_version = '1.1.0-alpha01'
+        ktx_version = '1.0.1'
+        ktx_fragment_version = '1.0.0'
     }
 }
 
